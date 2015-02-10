@@ -1,5 +1,5 @@
 package com.qualcomm.vuforia.CloudRecognition.samples;
-
+// Comment added to tst
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
