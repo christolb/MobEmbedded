@@ -1,0 +1,12 @@
+
+Database :MARSCloudDatabase
+
+Server Access Keys
+
+Access Key :1731517aff399a9c9585e47d763c2c99df0e2243
+Secret Key :7a607bd1a9ef7f8a78d51195d7640df22ad03ecd
+
+Client Access Keys
+
+Access Key :f16027bceb76d83b2859776996362c0ea388e5ff
+Secret Key :b3702239c06133c67aa3d2b2957ad35e1c459769
