@@ -186,7 +186,6 @@ public class CloudAR extends Activity implements SampleApplicationControl,
     // for rendering.
     private void loadTextures()
     {
-
         mTextures.add(Texture.loadTextureFromApk("TextureTeapotRed.png",
                 getAssets()));
         Log.d("GP","CloudAR loadTextures done");

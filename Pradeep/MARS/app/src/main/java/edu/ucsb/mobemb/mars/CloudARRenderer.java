@@ -1,5 +1,6 @@
 package edu.ucsb.mobemb.mars;
 
+import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -43,6 +44,7 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
     private Vector<Texture> mTextures;
 
     private Teapot mTeapot;
+    private GLText glText;                             // A GLText Instance
 
     private CloudAR mActivity;
 
@@ -120,7 +122,17 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
                 "modelViewProjectionMatrix");
         texSampler2DHandle = GLES20.glGetUniformLocation(shaderProgramID,
                 "texSampler2D");
+
+        glText = new GLText(mActivity.getAssets());
+        // Load the font from file (set size + padding), creates the texture
+        // NOTE: after a successful call to this the font is ready for rendering!
+        glText.load("Roboto-Regular.ttf", 14, 2, 2 );  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
+
         mTeapot = new Teapot();
+
+        // enable texture + alpha blending
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
     }
 
 
@@ -133,6 +145,8 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
         // Get the state from Vuforia and mark the beginning of a rendering
         // section
         State state = Renderer.getInstance().begin();
+
+
 
         // Explicitly render the Video Background
         Renderer.getInstance().drawVideoBackground();
@@ -187,6 +201,13 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
                 OBJECT_SCALE_FLOAT, OBJECT_SCALE_FLOAT);
         Matrix.multiplyMM(modelViewProjection, 0, vuforiaAppSession
                 .getProjectionMatrix().getData(), 0, modelViewMatrix, 0);
+
+        glText.begin( 1.0f, 1.0f, 1.0f, 1.0f, modelViewProjection );         // Begin Text Rendering (Set Color WHITE)
+        //glText.drawC("Test 3D!", 0f, 0f, 0f, 0, 0, 0);
+        glText.drawC("M", 0f, 40f, 40f, 0, 0, 0);
+        glText.drawC("A", 20f, 40f, 40f, 0, 0, 0);
+        glText.drawC("R", 40f, 40f, 40f, 0, 0, 0);
+        glText.drawC("S", 60f, 40f, 40f, 0, 0, 0);
 
         // activate the shader program and bind the vertex/normal/tex coords
         GLES20.glUseProgram(shaderProgramID);
