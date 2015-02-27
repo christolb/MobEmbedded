@@ -46,7 +46,7 @@ public class PostNewTarget implements TargetStatusListener {
     public PostNewTarget(String targName,String imgLocation)
     {
         targetName = targName;
-        imageLocation = "/storage/sdcard0/Download/UCSB_largemap.jpg";//imgLocation;
+        imageLocation = imgLocation; // "/storage/sdcard0/Download/UCSB_largemap.jpg";//imgLocation;
     }
 	
 	private String postTarget() throws URISyntaxException, ClientProtocolException, IOException, JSONException {

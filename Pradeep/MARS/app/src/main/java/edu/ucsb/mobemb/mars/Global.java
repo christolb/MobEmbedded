@@ -10,5 +10,6 @@ public class Global {
     public static String ClientAccessKey = "f16027bceb76d83b2859776996362c0ea388e5ff";
     public static String ClientSecretKey = "b3702239c06133c67aa3d2b2957ad35e1c459769";
 
+    public static String userID = "";
 
 }
