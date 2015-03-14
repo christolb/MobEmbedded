@@ -1,5 +1,7 @@
 package edu.ucsb.mobemb.mars;
 
+import android.net.Uri;
+
 /**
  * Created by Pradeep on 2/19/2015.
  */
@@ -11,5 +13,8 @@ public class Global {
     public static String ClientSecretKey = "b3702239c06133c67aa3d2b2957ad35e1c459769";
 
     public static String userID = "";
+    public static String targetID = "";
+    public static final String targetIDKey = "targetIDKey";
 
+    public static Uri profilePicUri;
 }

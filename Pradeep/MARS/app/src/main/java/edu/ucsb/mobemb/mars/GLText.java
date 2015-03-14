@@ -17,6 +17,7 @@ package edu.ucsb.mobemb.mars;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.opengl.GLES20;
@@ -195,9 +196,8 @@ public class GLText {
         // create an empty bitmap (alpha only)
         Bitmap bitmap = Bitmap.createBitmap( textureSize, textureSize, Bitmap.Config.ALPHA_8 );  // Create Bitmap
         Canvas canvas = new Canvas( bitmap );           // Create Canvas for Rendering to Bitmap
-        bitmap.eraseColor( 0x00000000 );                // Set Transparent Background (ARGB)
-
-        // calculate rows/columns
+       // bitmap.eraseColor( 0x00000000 );                // Set Transparent Background (ARGB)
+        canvas.drawColor(Color.RED);        // calculate rows/columns
         // NOTE: while not required for anything, these may be useful to have :)
         colCnt = textureSize / cellWidth;               // Calculate Number of Columns
         rowCnt = (int)Math.ceil( (float)CHAR_CNT / (float)colCnt );  // Calculate Number of Rows
@@ -207,7 +207,7 @@ public class GLText {
         float y = ( cellHeight - 1 ) - fontDescent - fontPadY;  // Set Start Position (Y)
         for ( char c = CHAR_START; c <= CHAR_END; c++ )  {  // FOR Each Character
             s[0] = c;                                    // Set Character to Draw
-            canvas.drawText( s, 0, 1, x, y, paint );     // Draw Character
+           // canvas.drawText( s, 0, 1, x, y, paint );     // Draw Character
             x += cellWidth;                              // Move to Next Character
             if ( ( x + cellWidth - fontPadX ) > textureSize )  {  // IF End of Line Reached
                 x = fontPadX;                             // Set X for New Row
@@ -215,10 +215,12 @@ public class GLText {
             }
         }
         s[0] = CHAR_NONE;                               // Set Character to Use for NONE
-        canvas.drawText( s, 0, 1, x, y, paint );        // Draw Character
+       // canvas.drawText( s, 0, 1, x, y, paint );        // Draw Character
 
         // save the bitmap in a texture
-        textureId = TextureHelper.loadTexture(bitmap);
+        Bitmap image = Bitmap.createBitmap(50, 50, Bitmap.Config.ALPHA_8);
+        image.eraseColor(android.graphics.Color.GREEN);
+        textureId = TextureHelper.loadTexture(image);
 
         // setup the array of character texture regions
         x = 0;                                          // Initialize X

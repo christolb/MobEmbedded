@@ -49,13 +49,13 @@ public class PostNewTarget implements TargetStatusListener {
         imageLocation = imgLocation; // "/storage/sdcard0/Download/UCSB_largemap.jpg";//imgLocation;
     }
 	
-	private String postTarget() throws URISyntaxException, ClientProtocolException, IOException, JSONException {
+	private String postTarget( String metadata) throws URISyntaxException, ClientProtocolException, IOException, JSONException {
 		HttpPost postRequest = new HttpPost();
 		HttpClient client = new DefaultHttpClient();
 		postRequest.setURI(new URI(url + "/targets"));
 		JSONObject requestBody = new JSONObject();
 		
-		setRequestBody(requestBody);
+		setRequestBody(requestBody, metadata);
 		postRequest.setEntity(new StringEntity(requestBody.toString()));
 		setHeaders(postRequest); // Must be done after setting the body
 		
@@ -71,7 +71,7 @@ public class PostNewTarget implements TargetStatusListener {
 		return uniqueTargetId;
 	}
 	
-	private void setRequestBody(JSONObject requestBody) throws IOException, JSONException {
+	private void setRequestBody(JSONObject requestBody, String metadata) throws IOException, JSONException {
 		File imageFile = new File(imageLocation);
 		if(!imageFile.exists()) {
 			Log.e("GP","File location does not exist!");
@@ -84,7 +84,7 @@ public class PostNewTarget implements TargetStatusListener {
         requestBody.put("image", new String(Base64.encodeBase64(image))); // Mandatory
 		requestBody.put("active_flag", 1); // Optional
 		//requestBody.put("application_metadata", Base64.encodeBase64String("Vuforia test metadata".getBytes())); // Optional
-        requestBody.put("application_metadata", new String(Base64.encodeBase64("Vuforia test metadata".getBytes()))); // Optional
+        requestBody.put("application_metadata", new String(Base64.encodeBase64(metadata.getBytes())));
 	}
 	
 	private void setHeaders(HttpUriRequest request) {
@@ -98,13 +98,14 @@ public class PostNewTarget implements TargetStatusListener {
 	 * Posts a new target to the Cloud database; 
 	 * then starts a periodic polling until 'status' of created target is reported as 'success'.
 	 */
-	public void postTargetThenPollStatus() {
+	public String postTargetThenPollStatus(String metadata) {
 		String createdTargetId = "";
 		try {
-			createdTargetId = postTarget();
+			createdTargetId = postTarget(metadata);
+
 		} catch (URISyntaxException | IOException | JSONException e) {
 			e.printStackTrace();
-			return;
+			return createdTargetId;
 		}
 	
 		// Poll the target status until the 'status' is 'success'
@@ -113,6 +114,8 @@ public class PostNewTarget implements TargetStatusListener {
 			targetStatusPoller = new TargetStatusPoller(pollingIntervalMinutes, createdTargetId, accessKey, secretKey, this );
 			targetStatusPoller.startPolling();
 		}
+
+        return createdTargetId;
 	}
 	
 	// Called with each update of the target status received by the TargetStatusPoller
@@ -132,11 +135,11 @@ public class PostNewTarget implements TargetStatusListener {
 			}
 		}
 	}
-	
-	
+
+
 //	public static void main(String[] args) throws URISyntaxException, ClientProtocolException, IOException, JSONException {
 //		PostNewTarget p = new PostNewTarget();
 //		p.postTargetThenPollStatus();
 //	}
-	
+
 }

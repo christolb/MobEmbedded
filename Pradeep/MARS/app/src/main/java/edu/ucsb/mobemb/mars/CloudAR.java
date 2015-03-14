@@ -597,7 +597,7 @@ public class CloudAR extends Activity implements SampleApplicationControl,
 
             mUILayout.setBackgroundColor(Color.TRANSPARENT);
 
-            mSampleAppMenu = new SampleAppMenu(this, this, "Cloud Reco",
+            mSampleAppMenu = new SampleAppMenu(this, this, "MARS",
                     mGlView, mUILayout, null);
             setSampleAppMenuSettings();
 
@@ -649,6 +649,9 @@ public class CloudAR extends Activity implements SampleApplicationControl,
             {
                 TargetSearchResult result = finder.getResult(0);
                 Log.d("GP","Target Search found : "+result.getTargetName()+" with ID="+result.getUniqueTargetId());
+
+                String metadata = result.getMetaData();
+                Log.e("GP","Metadata obtained ="+metadata);
 
                 // Check if this target is suitable for tracking:
                 if (result.getTrackingRating() > 0)

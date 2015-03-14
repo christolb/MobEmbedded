@@ -126,7 +126,7 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
         glText = new GLText(mActivity.getAssets());
         // Load the font from file (set size + padding), creates the texture
         // NOTE: after a successful call to this the font is ready for rendering!
-        glText.load("Roboto-Regular.ttf", 14, 2, 2 );  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
+        glText.load("DroidSans.ttf", 14, 2, 2 );  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
 
         mTeapot = new Teapot();
 

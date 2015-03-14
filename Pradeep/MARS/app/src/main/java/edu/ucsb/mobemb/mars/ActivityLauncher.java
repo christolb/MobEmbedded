@@ -4,19 +4,17 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import java.util.regex.Pattern;
 
-
+//List of activities to launch from buttons
 public class ActivityLauncher extends Activity
 {
 
@@ -24,7 +22,7 @@ public class ActivityLauncher extends Activity
 
     @Override
     public void onCreate(Bundle savedInstanceState)
-    {
+        {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activities_list);
 
@@ -39,6 +37,11 @@ public class ActivityLauncher extends Activity
         }
         Log.d(TAG,"UserID = "+ Global.userID);
 
+        //Initializing Vuforia Target ID with stored value if it exists
+            //DOne in ImagePicker !!!
+//        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+//        Global.targetID = sharedPref.getString(Global.targetIDKey, "null");
+//        Log.d("GP","Available SharedPref TargetID = "+Global.targetID);
 
     }
 
