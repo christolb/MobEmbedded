@@ -3,6 +3,7 @@ package edu.ucsb.mobemb.mars;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -14,6 +15,9 @@ import com.qualcomm.vuforia.TrackableResult;
 import com.qualcomm.vuforia.VIDEO_BACKGROUND_REFLECTION;
 import com.qualcomm.vuforia.Vuforia;
 
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -21,6 +25,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import edu.ucsb.mobemb.mars.SampleApplication.SampleApplicationSession;
 import edu.ucsb.mobemb.mars.SampleApplication.utils.CubeShaders;
+import edu.ucsb.mobemb.mars.SampleApplication.utils.MeshObject;
 import edu.ucsb.mobemb.mars.SampleApplication.utils.SampleUtils;
 import edu.ucsb.mobemb.mars.SampleApplication.utils.Teapot;
 import edu.ucsb.mobemb.mars.SampleApplication.utils.Texture;
@@ -28,6 +33,9 @@ import edu.ucsb.mobemb.mars.SampleApplication.utils.Texture;
 /**
  * Created by Pradeep on 2/19/2015.
  */
+
+
+
 public class CloudARRenderer  implements GLSurfaceView.Renderer
 {
     SampleApplicationSession vuforiaAppSession;
@@ -47,6 +55,26 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
     private GLText glText;                             // A GLText Instance
 
     private CloudAR mActivity;
+
+
+    static float planeVertices[] =
+        {
+                -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.0f, -0.5f, 0.5f, 0.0f,
+        };
+    static float planeTexcoords[] =
+        {
+                0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
+        };
+    static float planeNormals[] =
+        {
+                0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
+        };
+    static short planeIndices[] =
+        {
+                0, 1, 2, 0, 2, 3
+        };
+
+
 
     public CloudARRenderer(SampleApplicationSession session, CloudAR activity)
     {
@@ -209,6 +237,53 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
         glText.drawC("R", 40f, 40f, 40f, 0, 0, 0);
         glText.drawC("S", 60f, 40f, 40f, 0, 0, 0);
 
+
+
+        //GP - rendering text
+
+        Texture t = Texture.loadTextureFromText(mActivity, "Testing MARS :) ");
+            Log.d("GP", "Checking string Texture t=" + t.mTextureID + " string = "+t.toString());
+            GLES20.glGenTextures(1, t.mTextureID, 0);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                    GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                    GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
+                    t.mWidth, t.mHeight, 0, GLES20.GL_RGBA,
+                    GLES20.GL_UNSIGNED_BYTE, t.mData);
+
+//
+//        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+//
+//        // Set filtering
+//        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+//        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE );  // Set U Wrapping
+//        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE );  // Set V Wrapping
+//
+//        // Load the bitmap into the bound texture.
+//        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+//
+//        GLES20.glUniform4fv(mColorHandle, 1, color , 0);
+//        GLES20.glEnableVertexAttribArray(mColorHandle);
+//
+//        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);  // Set the active texture unit to texture unit 0
+//
+//        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId); // Bind the texture to this unit
+//
+//        // Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0
+//        GLES20.glUniform1i(mTextureUniformHandle, 0);
+//
+//
+//
+
+        //GP - end
+
+
+
+
         // activate the shader program and bind the vertex/normal/tex coords
         GLES20.glUseProgram(shaderProgramID);
         GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT, false,
@@ -233,8 +308,15 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
                 modelViewProjection, 0);
 
         // finally draw the teapot
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, mTeapot.getNumObjectIndex(),
-                GLES20.GL_UNSIGNED_SHORT, mTeapot.getIndices());
+     //   GLES20.glDrawElements(GLES20.GL_TRIANGLES, mTeapot.getNumObjectIndex(),
+        //        GLES20.GL_UNSIGNED_SHORT, mTeapot.getIndices());
+
+        //GP -
+        // Draw the square
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6,
+                GLES20.GL_UNSIGNED_SHORT, fillBuffer(planeIndices));
+        //GP
+
 
         // disable the enabled arrays
         GLES20.glDisableVertexAttribArray(vertexHandle);
@@ -248,6 +330,19 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
     public void setTextures(Vector<Texture> textures)
     {
         mTextures = textures;
+    }
+
+    protected Buffer fillBuffer(short[] array)
+    {
+        // Each short takes 2 bytes
+        ByteBuffer bb = ByteBuffer.allocateDirect(2 * array.length);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for (short s : array)
+            bb.putShort(s);
+        bb.rewind();
+
+        return bb;
+
     }
 
 }

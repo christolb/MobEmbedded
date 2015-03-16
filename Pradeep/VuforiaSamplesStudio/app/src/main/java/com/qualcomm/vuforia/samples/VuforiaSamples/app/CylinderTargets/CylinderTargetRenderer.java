@@ -8,6 +8,9 @@ and other countries. Trademarks of QUALCOMM Incorporated are used with permissio
 package com.qualcomm.vuforia.samples.VuforiaSamples.app.CylinderTargets;
 
 import java.io.IOException;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -356,5 +359,6 @@ public class CylinderTargetRenderer implements GLSurfaceView.Renderer
         mTextures = textures;
         
     }
-    
+
+
 }

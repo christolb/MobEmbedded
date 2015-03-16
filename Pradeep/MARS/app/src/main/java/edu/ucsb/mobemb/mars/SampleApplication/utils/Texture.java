@@ -7,10 +7,15 @@ and other countries. Trademarks of QUALCOMM Incorporated are used with permissio
 
 package edu.ucsb.mobemb.mars.SampleApplication.utils;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.util.Log;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -90,12 +95,44 @@ public class Texture
                 rowSize);
         
         texture.mData.rewind();
-        
+
         // Cleans variables
         dataBytes = null;
         data = null;
         
         texture.mSuccess = true;
         return texture;
+    }
+
+    public static Texture loadTextureFromText(Context context, String text )
+    {
+        try
+        {
+            TextView tv = new TextView(context);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(80, 100);
+            tv.setLayoutParams(layoutParams);
+            tv.setText(text);
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(Color.TRANSPARENT);
+
+            Bitmap bitMap;
+
+            bitMap = Bitmap.createBitmap(80, 100, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(bitMap);
+            tv.layout(0, 0, 80, 100);
+            tv.draw(c);
+
+           int[] data = new int[bitMap.getWidth() * bitMap.getHeight()];
+            bitMap.getPixels(data, 0, bitMap.getWidth(), 0, 0,
+                    bitMap.getWidth(), bitMap.getHeight());
+
+            return loadTextureFromIntBuffer(data, bitMap.getWidth(),
+                    bitMap.getHeight());
+        } catch (Exception e)
+        {
+            Log.e(LOGTAG, "Failed to log texture from Text ");
+            Log.i(LOGTAG, e.getMessage());
+            return null;
+        }
     }
 }
