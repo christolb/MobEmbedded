@@ -6,3 +6,10 @@ Vuforia:
 ucsbmars@gmail.com
 Mobile1234 
 <<Note: capital M in password>>
+
+AMAZON DYNAMODB ACCESS DETAILS
+email : ucsbmars@gmail.com
+Password : mobile1234
+Account ID : 134927758386 
+us-east-1:b253ee8e-0027-4f9e-a45b-3404bd2076dd
+Unauth ARN : arn:aws:iam::134927758386:role/Cognito_MARSUnauth_DefaultRole
