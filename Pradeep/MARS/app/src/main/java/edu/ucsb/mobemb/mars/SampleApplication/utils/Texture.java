@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -112,6 +113,7 @@ public class Texture
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(300, 300);
             tv.setLayoutParams(layoutParams);
             tv.setText(text);
+            tv.setGravity(Gravity.CENTER);
             tv.setTextSize(40f);
             tv.setTextColor(Color.RED);
             tv.setBackgroundColor(0x55001010);
