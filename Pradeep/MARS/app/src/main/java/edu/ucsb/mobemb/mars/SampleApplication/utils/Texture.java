@@ -109,19 +109,21 @@ public class Texture
         try
         {
             TextView tv = new TextView(context);
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(80, 100);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(300, 300);
             tv.setLayoutParams(layoutParams);
             tv.setText(text);
+            tv.setTextSize(55f);
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(Color.TRANSPARENT);
 
             Bitmap bitMap;
 
-            bitMap = Bitmap.createBitmap(80, 100, Bitmap.Config.ARGB_8888);
+            bitMap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(bitMap);
-            tv.layout(0, 0, 80, 100);
+            tv.layout(0, 0, 300, 300);
             tv.draw(c);
 
+            Log.d("GP","Bitmap created for Text Rendering: width = "+bitMap.getWidth()+" height ="+bitMap.getHeight());
            int[] data = new int[bitMap.getWidth() * bitMap.getHeight()];
             bitMap.getPixels(data, 0, bitMap.getWidth(), 0, 0,
                     bitMap.getWidth(), bitMap.getHeight());
@@ -130,8 +132,8 @@ public class Texture
                     bitMap.getHeight());
         } catch (Exception e)
         {
-            Log.e(LOGTAG, "Failed to log texture from Text ");
-            Log.i(LOGTAG, e.getMessage());
+            Log.e("GP", "Failed to log texture from Text ");
+            Log.i("GP", e.getMessage());
             return null;
         }
     }

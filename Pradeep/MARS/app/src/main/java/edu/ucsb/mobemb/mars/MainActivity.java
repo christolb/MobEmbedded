@@ -17,7 +17,7 @@ import android.widget.RelativeLayout;
 
 //First Activity - shows a splash screen for 1 sec
 public class MainActivity extends Activity {
-    private static long SPLASH_MILLIS = 5000;
+    private static long SPLASH_MILLIS = 1000;
 
     @Override
     public void onCreate(Bundle savedInstanceState)

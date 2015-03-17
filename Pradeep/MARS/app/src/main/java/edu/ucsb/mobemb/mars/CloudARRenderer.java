@@ -40,7 +40,7 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
 {
     SampleApplicationSession vuforiaAppSession;
 
-    private static final float OBJECT_SCALE_FLOAT = 3.0f;
+    private static final float OBJECT_SCALE_FLOAT = 300.0f;
 
     private int shaderProgramID;
     private int vertexHandle;
@@ -56,20 +56,22 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
 
     private CloudAR mActivity;
 
+    Texture myImgTexture;
 
-    static float planeVertices[] =
+
+    static final float planeVertices[] =
         {
                 -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.0f, -0.5f, 0.5f, 0.0f,
         };
-    static float planeTexcoords[] =
+    static final float planeTexcoords[] =
         {
                 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
         };
-    static float planeNormals[] =
+    static final float planeNormals[] =
         {
                 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
         };
-    static short planeIndices[] =
+    static final short planeIndices[] =
         {
                 0, 1, 2, 0, 2, 3
         };
@@ -122,19 +124,40 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, Vuforia.requiresAlpha() ? 0.0f
                 : 1.0f);
 
-        for (Texture t : mTextures)
-        {
-            Log.d("GP", "Checking Texture t=" + t.mTextureID + " string = "+t.toString());
-            GLES20.glGenTextures(1, t.mTextureID, 0);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                    GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                    GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
-                    t.mWidth, t.mHeight, 0, GLES20.GL_RGBA,
-                    GLES20.GL_UNSIGNED_BYTE, t.mData);
-        }
+//        for (Texture t : mTextures)
+//        {
+//            Log.d("GP", "Checking Texture t=" + t.mTextureID + " string = "+t.toString());
+//            GLES20.glGenTextures(1, t.mTextureID, 0);
+//            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
+//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+//                    GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+//            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+//                    GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+//            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
+//                    t.mWidth, t.mHeight, 0, GLES20.GL_RGBA,
+//                    GLES20.GL_UNSIGNED_BYTE, t.mData);
+//        }
+
+        //GP - rendering text
+
+
+       myImgTexture = Texture.loadTextureFromText(mActivity, "Testing MARS :) ");
+//        myImgTexture = Texture.loadTextureFromApk("TextureTeapotBlue.png",
+//                mActivity.getAssets());
+
+        Log.d("GP", "Checking string Texture t=" + myImgTexture.mTextureID + " string = "+myImgTexture.toString());
+        GLES20.glGenTextures(1, myImgTexture.mTextureID, 0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, myImgTexture.mTextureID[0]);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
+                myImgTexture.mWidth, myImgTexture.mHeight, 0, GLES20.GL_RGBA,
+                GLES20.GL_UNSIGNED_BYTE, myImgTexture.mData);
+
+//
 
         shaderProgramID = SampleUtils.createProgramFromShaderSrc(
                 CubeShaders.CUBE_MESH_VERTEX_SHADER,
@@ -151,12 +174,12 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
         texSampler2DHandle = GLES20.glGetUniformLocation(shaderProgramID,
                 "texSampler2D");
 
-        glText = new GLText(mActivity.getAssets());
-        // Load the font from file (set size + padding), creates the texture
-        // NOTE: after a successful call to this the font is ready for rendering!
-        glText.load("DroidSans.ttf", 14, 2, 2 );  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
-
-        mTeapot = new Teapot();
+//        glText = new GLText(mActivity.getAssets());
+//        // Load the font from file (set size + padding), creates the texture
+//        // NOTE: after a successful call to this the font is ready for rendering!
+//        glText.load("DroidSans.ttf", 14, 2, 2 );  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
+//
+//        mTeapot = new Teapot();
 
         // enable texture + alpha blending
         GLES20.glEnable(GLES20.GL_BLEND);
@@ -169,6 +192,9 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
     {
         // Clear color and depth buffer
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         // Get the state from Vuforia and mark the beginning of a rendering
         // section
@@ -227,35 +253,21 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
         Matrix.translateM(modelViewMatrix, 0, 0.0f, 0.0f, OBJECT_SCALE_FLOAT);
         Matrix.scaleM(modelViewMatrix, 0, OBJECT_SCALE_FLOAT,
                 OBJECT_SCALE_FLOAT, OBJECT_SCALE_FLOAT);
+       // Log.e("GP", "Scaling OBJECT_SCALE_FLOAT = " +OBJECT_SCALE_FLOAT);
         Matrix.multiplyMM(modelViewProjection, 0, vuforiaAppSession
                 .getProjectionMatrix().getData(), 0, modelViewMatrix, 0);
 
-        glText.begin( 1.0f, 1.0f, 1.0f, 1.0f, modelViewProjection );         // Begin Text Rendering (Set Color WHITE)
-        //glText.drawC("Test 3D!", 0f, 0f, 0f, 0, 0, 0);
-        glText.drawC("M", 0f, 40f, 40f, 0, 0, 0);
-        glText.drawC("A", 20f, 40f, 40f, 0, 0, 0);
-        glText.drawC("R", 40f, 40f, 40f, 0, 0, 0);
-        glText.drawC("S", 60f, 40f, 40f, 0, 0, 0);
+ //       glText.begin( 1.0f, 1.0f, 1.0f, 1.0f, modelViewProjection );         // Begin Text Rendering (Set Color WHITE)
+//      glText.drawC("Test 3D!", 0f, 0f, 0f, 0, 0, 0);
+//        glText.drawC("M", 0f, 40f, 40f, 0, 0, 0);
+//        glText.drawC("A", 20f, 40f, 40f, 0, 0, 0);
+//        glText.drawC("R", 40f, 40f, 40f, 0, 0, 0);
+//        glText.drawC("S", 60f, 40f, 40f, 0, 0, 0);
 
 
 
-        //GP - rendering text
 
-        Texture t = Texture.loadTextureFromText(mActivity, "Testing MARS :) ");
-            Log.d("GP", "Checking string Texture t=" + t.mTextureID + " string = "+t.toString());
-            GLES20.glGenTextures(1, t.mTextureID, 0);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                    GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                    GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-
-            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
-                    t.mWidth, t.mHeight, 0, GLES20.GL_RGBA,
-                    GLES20.GL_UNSIGNED_BYTE, t.mData);
-
-//
-//        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+        //GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
 //
 //        // Set filtering
 //        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
@@ -284,34 +296,60 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
 
 
 
-        // activate the shader program and bind the vertex/normal/tex coords
-        GLES20.glUseProgram(shaderProgramID);
-        GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT, false,
-                0, mTeapot.getVertices());
-        GLES20.glVertexAttribPointer(normalHandle, 3, GLES20.GL_FLOAT, false,
-                0, mTeapot.getNormals());
-        GLES20.glVertexAttribPointer(textureCoordHandle, 2, GLES20.GL_FLOAT,
-                false, 0, mTeapot.getTexCoords());
-
-        GLES20.glEnableVertexAttribArray(vertexHandle);
-        GLES20.glEnableVertexAttribArray(normalHandle);
-        GLES20.glEnableVertexAttribArray(textureCoordHandle);
-
-        // activate texture 0, bind it, and pass to shader
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                mTextures.get(textureIndex).mTextureID[0]);
-        GLES20.glUniform1i(texSampler2DHandle, 0);
-
-        // pass the model view matrix to the shader
-        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
-                modelViewProjection, 0);
+//        // activate the shader program and bind the vertex/normal/tex coords
+//        GLES20.glUseProgram(shaderProgramID);
+//        GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT, false,
+//                0, mTeapot.getVertices());
+//        GLES20.glVertexAttribPointer(normalHandle, 3, GLES20.GL_FLOAT, false,
+//                0, mTeapot.getNormals());
+//        GLES20.glVertexAttribPointer(textureCoordHandle, 2, GLES20.GL_FLOAT,
+//                false, 0, mTeapot.getTexCoords());
+//
+//        GLES20.glEnableVertexAttribArray(vertexHandle);
+//        GLES20.glEnableVertexAttribArray(normalHandle);
+//        GLES20.glEnableVertexAttribArray(textureCoordHandle);
+//
+//        // activate texture 0, bind it, and pass to shader
+//        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+//        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
+//                mTextures.get(textureIndex).mTextureID[0]);
+//        GLES20.glUniform1i(texSampler2DHandle, 0);
+//
+//        // pass the model view matrix to the shader
+//        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
+//                modelViewProjection, 0);
 
         // finally draw the teapot
      //   GLES20.glDrawElements(GLES20.GL_TRIANGLES, mTeapot.getNumObjectIndex(),
         //        GLES20.GL_UNSIGNED_SHORT, mTeapot.getIndices());
 
         //GP -
+
+
+
+        GLES20.glUseProgram(shaderProgramID);
+
+        GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT,
+                false, 0, fillBuffer(planeVertices));
+        GLES20.glVertexAttribPointer(normalHandle, 3, GLES20.GL_FLOAT,
+                false, 0, fillBuffer(planeNormals));
+        GLES20.glVertexAttribPointer(textureCoordHandle, 2,
+                GLES20.GL_FLOAT, false, 0, fillBuffer(planeTexcoords));
+
+        GLES20.glEnableVertexAttribArray(vertexHandle);
+        GLES20.glEnableVertexAttribArray(normalHandle);
+        GLES20.glEnableVertexAttribArray(textureCoordHandle);
+
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
+                myImgTexture.mTextureID[0]);
+        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
+                modelViewProjection, 0);
+        GLES20.glUniform1i(texSampler2DHandle, 0);
+
+
+       // GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+
         // Draw the square
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6,
                 GLES20.GL_UNSIGNED_SHORT, fillBuffer(planeIndices));
@@ -339,6 +377,19 @@ public class CloudARRenderer  implements GLSurfaceView.Renderer
         bb.order(ByteOrder.LITTLE_ENDIAN);
         for (short s : array)
             bb.putShort(s);
+        bb.rewind();
+
+        return bb;
+
+    }
+
+    protected Buffer fillBuffer(float[] array)
+    {
+        // Each float takes 4 bytes
+        ByteBuffer bb = ByteBuffer.allocateDirect(4 * array.length);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for (float d : array)
+            bb.putFloat(d);
         bb.rewind();
 
         return bb;
