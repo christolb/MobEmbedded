@@ -118,6 +118,8 @@ public class CloudAR extends Activity implements SampleApplicationControl,
 
     boolean mIsDroidDevice = false;
 
+    public String statusMessage;
+
 
     // Called when the activity first starts or needs to be recreated after
     // resuming the application or a configuration change.
@@ -653,6 +655,8 @@ public class CloudAR extends Activity implements SampleApplicationControl,
                 String metadata = result.getMetaData();
                 Log.e("GP","Metadata obtained ="+metadata);
 
+                statusMessage = metadata;
+
                 // Check if this target is suitable for tracking:
                 if (result.getTrackingRating() > 0)
                 {
@@ -661,6 +665,10 @@ public class CloudAR extends Activity implements SampleApplicationControl,
                     if (mExtendedTracking)
                         trackable.startExtendedTracking();
                 }
+            }
+            else
+            {
+                statusMessage=null;
             }
         }
     }

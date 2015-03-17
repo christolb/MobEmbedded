@@ -27,6 +27,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Update Profile"
+        android:enabled="false"
         android:onClick="updateStatus"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />
@@ -49,5 +50,15 @@
         android:text="Hi.I am using MARS"
         android:layout_below="@+id/textView"
         android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Camera"
+        android:id="@+id/camButton"
+        android:layout_above="@+id/btn_pick"
+        android:onClick="onCamButtonClicked"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

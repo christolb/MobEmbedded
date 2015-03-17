@@ -16,6 +16,8 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -39,11 +41,13 @@ public class ImagePicker extends Activity {
 
     private final int SELECT_PHOTO = 1;
     private final int CROP_RESULT = 2;
+    private final int REQUEST_IMAGE_CAPTURE = 3;
     private ImageView imageView;
     String name;
     Activity context;
     final String imageURIKey = "selctedImageURI";
     public EditText statusTextView;
+    Button btnUpdate;
 
 
     @Override
@@ -58,22 +62,40 @@ public class ImagePicker extends Activity {
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         String uriString = sharedPref.getString(imageURIKey, "temp");
 
+        Uri imageUri = Uri.parse(uriString);
+
+        if (uriString.equalsIgnoreCase("temp")) {
+            imageView.setImageResource(R.mipmap.mars_launcher);
+        } else {
+            Log.e("GP", "onCreate imgUri loaded from SharedPref = " + uriString);
+
+            //GP render thumbnail of image instead of full on Imageview
+//            imageStream = getContentResolver().openInputStream(imageUri);
+//            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+//            imageView.setImageBitmap(selectedImage);
+
+            Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+                    getContentResolver(), Integer.parseInt(imageUri.getLastPathSegment()),
+                    MediaStore.Images.Thumbnails.MINI_KIND,
+                    (BitmapFactory.Options) null);
+
+            //GP Using thumbnail to display in ImageView
+            imageView.setImageBitmap(bitmap);
+        }
+
+        Global.profilePicUri = imageUri;
+
         String targetID = sharedPref.getString(Global.targetIDKey, "null");
         Log.e("GP", "temp targetID in ImagePicker Activity= " + targetID);
         Global.targetID = targetID;
 
-        Uri imageUri = Uri.parse(uriString);
-        Global.profilePicUri = imageUri;
+        String statusMsg = sharedPref.getString(Global.statusMessageKey, "Hello MARS");
+        Log.e("GP", "statusMessage in ImagePicker Activity= " + statusMsg);
+        Global.statusMessage = statusMsg;
 
         final InputStream imageStream;
-        try {
-            imageStream = getContentResolver().openInputStream(imageUri);
-            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-            imageView.setImageBitmap(selectedImage);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.e("GP", "Image file not found!!!");
-        }
+
+        statusTextView.setText(statusMsg);
 
 
         Button pickImage = (Button) findViewById(R.id.btn_pick);
@@ -87,6 +109,38 @@ public class ImagePicker extends Activity {
 
             }
         });
+
+        btnUpdate = (Button) findViewById(R.id.btn_update);
+
+        statusTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d("GP", "Status Updation started. Enabling Button");
+                if (!Global.profilePicUri.toString().equalsIgnoreCase("temp"))
+                    btnUpdate.setEnabled(true);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+
+    }
+
+    public void onCamButtonClicked(View v) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        //takePictureIntent.putExtra("return-data", true);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
     }
 
     @Override
@@ -97,82 +151,151 @@ public class ImagePicker extends Activity {
             case SELECT_PHOTO:
                 if (resultCode == RESULT_OK) {
                     Global.profilePicUri = imageReturnedIntent.getData();
-                    Log.d("GP", "Image picker returned Uri = " + Global.profilePicUri);
+                    Log.d("GP", "From Gallery: Image picker returned Uri = " + Global.profilePicUri);
                     // Update image to image view and global variables
                     //GP For displaying the  selected image on ImageView
+//                    InputStream imageStream = null;
+//                    try {
+//                        imageStream = getContentResolver().openInputStream(Global.profilePicUri);
+//                    } catch (FileNotFoundException e) {
+//                        e.printStackTrace();
+//                    }
+                    //    Bitmap bmp = BitmapFactory.decodeStream(imageStream);
+                    //   imageView.setImageBitmap(bmp);
 
-                    Intent intent = new Intent("com.android.camera.action.CROP");
-                    intent.setType("image/*");
-                    List<ResolveInfo> list = getPackageManager().queryIntentActivities(intent, 0);
-                    int size = list.size();
-                    if (size == 0) {
-                        Toast.makeText(this, "Can not find image crop app", Toast.LENGTH_SHORT).show();
-                        Log.e("GP", "Can not find image crop app");
-                        return;
-                    } else {
-                        intent.setData(Global.profilePicUri);
-                        intent.putExtra("outputX", 300);
-                        intent.putExtra("outputY", 300);
-//                        intent.putExtra("aspectX", 1);
-//                        intent.putExtra("aspectY", 1);
-                        intent.putExtra("crop", true);
-                        intent.putExtra("return-data", true);
-                        startActivityForResult(intent, CROP_RESULT);
+                    //GP
+                    if (!Global.profilePicUri.toString().equalsIgnoreCase("temp"))
+                        btnUpdate.setEnabled(true);
 
-//                     //   try {
-//                            final Uri imageUri = Global.profilePicUri;
-//                            Log.d("GP", "Picked Image URI = " + imageUri.toString());
-//                            String imageLocation = imageUri.getEncodedPath();//   FileUtils.getPath(this, uri);
-//                            Log.d("GP", "Picked Image Location = " + imageLocation + "Path =" + imageUri.getPath() + "");
-//                            //final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-//                            //final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-//                            // imageView.setImageBitmap(selectedImage);
-//
-//                     //   } catch (FileNotFoundException e) {
-//                     //       e.printStackTrace();
-//                     //   }
+                    Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+                            getContentResolver(), Integer.parseInt(imageReturnedIntent.getData().getLastPathSegment()),
+                            MediaStore.Images.Thumbnails.MINI_KIND,
+                            (BitmapFactory.Options) null);
 
-                    }
+                    //GP Using thumbnail to display in ImageView
+                    imageView.setImageBitmap(bitmap);
+
+                    //GP - code for calling bitmap
+//                    Intent intent = new Intent("com.android.camera.action.CROP");
+//                    intent.setType("image/*");
+//                    List<ResolveInfo> list = getPackageManager().queryIntentActivities(intent, 0);
+//                    int size = list.size();
+//                    if (size == 0) {
+//                        Toast.makeText(this, "Can not find image crop app", Toast.LENGTH_SHORT).show();
+//                        Log.e("GP", "Can not find image crop app");
+//                        return;
+//                    } else {
+//                        intent.setData(Global.profilePicUri);
+//                        intent.putExtra("outputX", 4000);
+//                        intent.putExtra("outputY", 4000);
+////                        intent.putExtra("aspectX", 1);
+////                        intent.putExtra("aspectY", 1);
+//                        intent.putExtra("crop", true);
+//                        intent.putExtra("return-data", true);
+//                        startActivityForResult(intent, CROP_RESULT);
+//                    }
                 }
                 break;
-            case CROP_RESULT: {
+            case REQUEST_IMAGE_CAPTURE:
                 if (resultCode == RESULT_OK) {
-                    Log.e("GP", "CROP_RESULT");
+                    Global.profilePicUri = imageReturnedIntent.getData();
+                    Log.d("GP", "From Camera: Image picker returned Uri = " + Global.profilePicUri);
+                    // Update image to image view and global variables
+                    //GP For displaying the  selected image on ImageView
+//                    InputStream imageStream = null;
+//                    try {
+//                        imageStream = getContentResolver().openInputStream(Global.profilePicUri);
+//                    } catch (FileNotFoundException e) {
+//                        e.printStackTrace();
+//                    }
+                    //    Bitmap bmp = BitmapFactory.decodeStream(imageStream);
+                    //   imageView.setImageBitmap(bmp);
+
+                    //GP
+                    if (!Global.profilePicUri.toString().equalsIgnoreCase("temp"))
+                        btnUpdate.setEnabled(true);
+
                     Bundle extras = imageReturnedIntent.getExtras();
-                    if (extras != null) {
-                        Bitmap bmp = extras.getParcelable("data");
-                        imageView.setImageBitmap(bmp);
-
-                        //Saving image file
-                        String filename = "marsPic.png";
-                        File sd = Environment.getExternalStorageDirectory();
-                        File dest = new File(sd, filename);
-
-                        //Bitmap bitmap = (Bitmap)data.getExtras().get("data");
-                        try {
-                            Log.d("GP","Cropped bitmap size = "+bmp.getWidth()+ " x "+bmp.getHeight());
-                            FileOutputStream out = new FileOutputStream(dest);
-                            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-                            out.flush();
-                            out.close();
-                        } catch (Exception e) {
-                            Log.e("GP", "Exception in storing profile pic as png");
-                            e.printStackTrace();
-                        }
-
-                        try {
-                           String path =  MediaStore.Images.Media.insertImage(getContentResolver(), dest.getAbsolutePath(), dest.getName(), dest.getName());
-                            Global.profilePicUri = Uri.parse(path);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                       // Global.profilePicUri = Uri.fromFile(dest);
-                        Log.e("GP", "URI from cropped pic = " + Global.profilePicUri);
-
-                        break;
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    if (imageBitmap != null) {
+                        Log.e("GP", "Bitmap from camera 1 : thumbnail : size :  " + imageBitmap.getHeight() + " " + imageBitmap.getWidth());
+                        imageView.setImageBitmap(imageBitmap);
+                    } else {
+                        Log.e("GP", "Bitmap returned by camera is null . So taking URI and finding thumbnail ");
+                        Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+                                getContentResolver(), Integer.parseInt(Global.profilePicUri.getLastPathSegment()),
+                                MediaStore.Images.Thumbnails.MINI_KIND,
+                                (BitmapFactory.Options) null);
+                        Log.e("GP", "Bitmap from camera 2 : thumbnail : size :  " + imageBitmap.getHeight() + " " + imageBitmap.getWidth());
+                        //GP Using thumbnail to display in ImageView
+                        imageView.setImageBitmap(bitmap);
                     }
+
+                    //GP - code for calling bitmap
+//                    Intent intent = new Intent("com.android.camera.action.CROP");
+//                    intent.setType("image/*");
+//                    List<ResolveInfo> list = getPackageManager().queryIntentActivities(intent, 0);
+//                    int size = list.size();
+//                    if (size == 0) {
+//                        Toast.makeText(this, "Can not find image crop app", Toast.LENGTH_SHORT).show();
+//                        Log.e("GP", "Can not find image crop app");
+//                        return;
+//                    } else {
+//                        intent.setData(Global.profilePicUri);
+//                        intent.putExtra("outputX", 4000);
+//                        intent.putExtra("outputY", 4000);
+////                        intent.putExtra("aspectX", 1);
+////                        intent.putExtra("aspectY", 1);
+//                        intent.putExtra("crop", true);
+//                        intent.putExtra("return-data", true);
+//                        startActivityForResult(intent, CROP_RESULT);
+//                    }
                 }
-            }
+                break;
+
+//            case CROP_RESULT: {
+//                //GP - Not gonna do CROP!!!
+//                if (resultCode == RESULT_OK) {
+//                    Log.e("GP", "CROP_RESULT");
+//                    btnUpdate.setEnabled(true);
+//
+//                    Bundle extras = imageReturnedIntent.getExtras();
+//                    if (extras != null) {
+//                        Bitmap bmp = extras.getParcelable("data");
+//
+//
+//                        imageView.setImageBitmap(bmp);
+//
+//                        //Saving image file
+//                        String filename = "marsPic.png";
+//                        File sd = Environment.getExternalStorageDirectory();
+//                        File dest = new File(sd, filename);
+//
+//                        //Bitmap bitmap = (Bitmap)data.getExtras().get("data");
+//                        try {
+//                            Log.d("GP","Cropped bitmap size = "+bmp.getWidth()+ " x "+bmp.getHeight());
+//                            FileOutputStream out = new FileOutputStream(dest);
+//                            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+//                            out.flush();
+//                            out.close();
+//                        } catch (Exception e) {
+//                            Log.e("GP", "Exception in storing profile pic as png");
+//                            e.printStackTrace();
+//                        }
+//
+//                        try {
+//                           String path =  MediaStore.Images.Media.insertImage(getContentResolver(), dest.getAbsolutePath(), dest.getName(), dest.getName());
+//                            Global.profilePicUri = Uri.parse(path);
+//                        } catch (FileNotFoundException e) {
+//                            e.printStackTrace();
+//                        }
+//                       // Global.profilePicUri = Uri.fromFile(dest);
+//                        Log.e("GP", "URI from cropped pic = " + Global.profilePicUri);
+//
+//                        break;
+//                    }
+//                }
+//            }
         }
     }
 
@@ -180,10 +303,11 @@ public class ImagePicker extends Activity {
         //GP saving the selected image id for furture use
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(imageURIKey, imageUri.toString());
+        editor.putString(imageURIKey, imageUri.toString());  //TODO Image is not getting
         editor.putString(Global.targetIDKey, targetID);
+        editor.putString(Global.statusMessageKey, statusTextView.getText().toString());
         editor.commit();
-        Log.d("GP", "Saving to sharedPref targetID" + Global.targetID + " imageUri=" + imageUri);
+        Log.d("GP", "Saving to sharedPref targetID" + Global.targetID + " imageUri=" + imageUri + " Status Msg=" + statusTextView.getText().toString());
     }
 
     // By using this method get the Uri of Internal/External Storage for Media
@@ -195,6 +319,8 @@ public class ImagePicker extends Activity {
         return MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     }
 
+
+    //on click of Update Button
     public void updateStatus(View v) {
         {
             //GP Obtaining absolute path of picked image
@@ -202,7 +328,7 @@ public class ImagePicker extends Activity {
             try {
 
                 Uri originalUri = Global.profilePicUri;
-                Log.e("GP","UpdateStatus originalUri = "+originalUri);
+                Log.e("GP", "UpdateStatus originalUri = " + originalUri);
                 String pathsegment[] = originalUri.getLastPathSegment().split(":");
                 String id = pathsegment[0];
                 final String[] imageColumns = {MediaStore.Images.Media.DATA};
@@ -236,6 +362,7 @@ public class ImagePicker extends Activity {
                         try {
                             UpdateTarget u = new UpdateTarget(Global.userID, name);
                             u.updateTarget(statusTextView.getText().toString());
+                            updateTargetImageID(Global.targetID, Global.profilePicUri);  //GP added for updation image not changed issue
                         } catch (Exception e) {
                             Log.e("GP", "Exception while Updating VWS " + e.getMessage());
                         }

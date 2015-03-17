@@ -16,5 +16,9 @@ public class Global {
     public static String targetID = "";
     public static final String targetIDKey = "targetIDKey";
 
+    public static String statusMessage = "";
+    public static final String statusMessageKey = "statusMessageKey";
+
+
     public static Uri profilePicUri;
 }

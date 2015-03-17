@@ -28,7 +28,7 @@ import java.nio.ByteOrder;
 // Exposes functionality for loading a texture from the APK.
 public class Texture
 {
-    private static final String LOGTAG = "Vuforia_Texture";
+    private static final String LOGTAG = "GP";
     
     public int mWidth;          // The width of the texture.
     public int mHeight;         // The height of the texture.
@@ -112,8 +112,8 @@ public class Texture
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(300, 300);
             tv.setLayoutParams(layoutParams);
             tv.setText(text);
-            tv.setTextSize(55f);
-            tv.setTextColor(Color.BLACK);
+            tv.setTextSize(40f);
+            tv.setTextColor(Color.RED);
             tv.setBackgroundColor(Color.TRANSPARENT);
 
             Bitmap bitMap;
