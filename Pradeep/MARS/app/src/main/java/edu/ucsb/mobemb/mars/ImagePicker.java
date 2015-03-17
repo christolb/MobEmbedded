@@ -30,7 +30,10 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import edu.ucsb.mobemb.mars.CloudCommunication.PostNewTarget;
@@ -48,6 +51,7 @@ public class ImagePicker extends Activity {
     final String imageURIKey = "selctedImageURI";
     public EditText statusTextView;
     Button btnUpdate;
+    String mCurrentPhotoPath;
 
 
     @Override
@@ -135,12 +139,15 @@ public class ImagePicker extends Activity {
     }
 
     public void onCamButtonClicked(View v) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        /*Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         //takePictureIntent.putExtra("return-data", true);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
+        }  */
+
+        //GP doing as per developer site
+        dispatchTakePictureIntent();
     }
 
     @Override
@@ -198,6 +205,7 @@ public class ImagePicker extends Activity {
                 break;
             case REQUEST_IMAGE_CAPTURE:
                 if (resultCode == RESULT_OK) {
+                    galleryAddPic();
                     Global.profilePicUri = imageReturnedIntent.getData();
                     Log.d("GP", "From Camera: Image picker returned Uri = " + Global.profilePicUri);
                     // Update image to image view and global variables
@@ -211,25 +219,29 @@ public class ImagePicker extends Activity {
                     //    Bitmap bmp = BitmapFactory.decodeStream(imageStream);
                     //   imageView.setImageBitmap(bmp);
 
-                    //GP
+
                     if (!Global.profilePicUri.toString().equalsIgnoreCase("temp"))
                         btnUpdate.setEnabled(true);
+                    //GP - working but not for chris
+//
+//                    Bundle extras = imageReturnedIntent.getExtras();
+//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+//                    if (imageBitmap != null) {
+//                        Log.e("GP", "Bitmap from camera 1 : thumbnail : size :  " + imageBitmap.getHeight() + " " + imageBitmap.getWidth());
+//                        imageView.setImageBitmap(imageBitmap);
+//                    } else {
+//                        Log.e("GP", "Bitmap returned by camera is null . So taking URI and finding thumbnail ");
+//                        Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+//                                getContentResolver(), Integer.parseInt(Global.profilePicUri.getLastPathSegment()),
+//                                MediaStore.Images.Thumbnails.MINI_KIND,
+//                                (BitmapFactory.Options) null);
+//                        Log.e("GP", "Bitmap from camera 2 : thumbnail : size :  " + imageBitmap.getHeight() + " " + imageBitmap.getWidth());
+//                        //GP Using thumbnail to display in ImageView
+//                        imageView.setImageBitmap(bitmap);
+//                    }
+                    //GP not working for chris end
 
-                    Bundle extras = imageReturnedIntent.getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    if (imageBitmap != null) {
-                        Log.e("GP", "Bitmap from camera 1 : thumbnail : size :  " + imageBitmap.getHeight() + " " + imageBitmap.getWidth());
-                        imageView.setImageBitmap(imageBitmap);
-                    } else {
-                        Log.e("GP", "Bitmap returned by camera is null . So taking URI and finding thumbnail ");
-                        Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
-                                getContentResolver(), Integer.parseInt(Global.profilePicUri.getLastPathSegment()),
-                                MediaStore.Images.Thumbnails.MINI_KIND,
-                                (BitmapFactory.Options) null);
-                        Log.e("GP", "Bitmap from camera 2 : thumbnail : size :  " + imageBitmap.getHeight() + " " + imageBitmap.getWidth());
-                        //GP Using thumbnail to display in ImageView
-                        imageView.setImageBitmap(bitmap);
-                    }
+                    setPic();  //GP as per developer site
 
                     //GP - code for calling bitmap
 //                    Intent intent = new Intent("com.android.camera.action.CROP");
@@ -398,5 +410,78 @@ public class ImagePicker extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return true;
+    }
+
+
+
+
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        return image;
+    }
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                ex.printStackTrace();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                        Uri.fromFile(photoFile));
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    private void setPic() {
+        // Get the dimensions of the View
+        int targetW = imageView.getWidth();
+        int targetH = imageView.getHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        imageView.setImageBitmap(bitmap);
+    }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
     }
 }

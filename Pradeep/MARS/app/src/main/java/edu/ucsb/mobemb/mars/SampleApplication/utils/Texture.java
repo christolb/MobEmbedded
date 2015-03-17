@@ -108,13 +108,13 @@ public class Texture
     {
         try
         {
-            TextView tv = new TextView(context);
+            AutoResizeTextView tv = new AutoResizeTextView(context);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(300, 300);
             tv.setLayoutParams(layoutParams);
             tv.setText(text);
             tv.setTextSize(40f);
             tv.setTextColor(Color.RED);
-            tv.setBackgroundColor(Color.TRANSPARENT);
+            tv.setBackgroundColor(0x55001010);
 
             Bitmap bitMap;
 
