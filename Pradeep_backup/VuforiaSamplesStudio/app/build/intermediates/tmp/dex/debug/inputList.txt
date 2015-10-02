@@ -1,2 +1,0 @@
-E:\Q2\Mobile Embedded\Github Code\MobEmbedded\Pradeep\VuforiaSamplesStudio\app\build\intermediates\classes\debug
-E:\Q2\Mobile Embedded\Github Code\MobEmbedded\Pradeep\VuforiaSamplesStudio\app\build\intermediates\pre-dexed\debug\Vuforia-d67133690483ac170f7ce01b1e53d6b029707149.jar

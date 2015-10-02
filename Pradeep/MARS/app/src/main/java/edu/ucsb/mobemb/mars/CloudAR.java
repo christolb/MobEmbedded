@@ -94,9 +94,14 @@ public class CloudAR extends Activity implements SampleApplicationControl,
     //private static final String kSecretKey = "ad4a7110ad50100b22474f166d7ef4f5b3887a30";
 
 
-    //MARS Cloud Database
-    private static final String kAccessKey = "f16027bceb76d83b2859776996362c0ea388e5ff";
-    private static final String kSecretKey = "b3702239c06133c67aa3d2b2957ad35e1c459769";
+   // //MARS Cloud Database
+   // private static final String kAccessKey = "f16027bceb76d83b2859776996362c0ea388e5ff";
+   // private static final String kSecretKey = "b3702239c06133c67aa3d2b2957ad35e1c459769";
+
+    //MARS2 Cloud Database
+    private static final String kAccessKey = "ef4222158870ae4f4b4139e8956f572447d5dc56";
+    private static final String kSecretKey = "8fc78ffda63e1b6a504cffc9c875601c9f7db8f3";
+
 
     // View overlays to be displayed in the Augmented View
     private RelativeLayout mUILayout;

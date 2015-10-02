@@ -114,8 +114,8 @@ public class Texture
             tv.setLayoutParams(layoutParams);
             tv.setText(text);
             tv.setGravity(Gravity.CENTER);
-            tv.setTextSize(40f);
-            tv.setTextColor(Color.RED);
+            tv.setTextSize(45f);
+            tv.setTextColor(Color.GREEN);
             tv.setBackgroundColor(0x55001010);
 
             Bitmap bitMap;

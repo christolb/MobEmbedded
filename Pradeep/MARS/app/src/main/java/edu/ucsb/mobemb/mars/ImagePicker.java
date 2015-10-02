@@ -53,6 +53,8 @@ public class ImagePicker extends Activity {
     Button btnUpdate;
     String mCurrentPhotoPath;
 
+    private Uri mMakePhotoUri;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,11 @@ public class ImagePicker extends Activity {
         statusTextView = (EditText) findViewById(R.id.statusText);
 
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+
+
+        sharedPref.edit().remove(imageURIKey).commit();
+        sharedPref.edit().remove(Global.targetIDKey).commit();
+
         String uriString = sharedPref.getString(imageURIKey, "temp");
 
         Uri imageUri = Uri.parse(uriString);
@@ -206,7 +213,7 @@ public class ImagePicker extends Activity {
             case REQUEST_IMAGE_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     galleryAddPic();
-                    Global.profilePicUri = imageReturnedIntent.getData();
+                    //  Global.profilePicUri = imageReturnedIntent.getData();
                     Log.d("GP", "From Camera: Image picker returned Uri = " + Global.profilePicUri);
                     // Update image to image view and global variables
                     //GP For displaying the  selected image on ImageView
@@ -444,8 +451,14 @@ public class ImagePicker extends Activity {
                 // Error occurred while creating the File
                 ex.printStackTrace();
             }
+
             // Continue only if the File was successfully created
             if (photoFile != null) {
+                Log.e("GP","Camera - dispatchTakePictureIntent - saving file = "+photoFile.getAbsolutePath());
+//                mMakePhotoUri = Uri.fromFile(photoFile);
+//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+//                        mMakePhotoUri);
+
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
@@ -455,8 +468,8 @@ public class ImagePicker extends Activity {
 
     private void setPic() {
         // Get the dimensions of the View
-        int targetW = imageView.getWidth();
-        int targetH = imageView.getHeight();
+        int targetW = 300; //imageView.getWidth();
+        int targetH = 300; //imageView.getHeight();
 
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
@@ -481,7 +494,30 @@ public class ImagePicker extends Activity {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         File f = new File(mCurrentPhotoPath);
         Uri contentUri = Uri.fromFile(f);
+        //GP
+//        Uri contentUri=  mMakePhotoUri;
+//        Log.e("GP","Photo taken - galleryAddPic :contentUri = mMakePhotoUri ="+mMakePhotoUri);
+
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
+    }
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mCurrentPhotoPath != null) {
+            //outState.putString("curPhotoPath", mImageUri.toString());
+            outState.putString("curPhotoPath", mCurrentPhotoPath);
+            Log.e("GP","Camera mCurrentPhotoPath on save = "+mCurrentPhotoPath);
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.containsKey("curPhotoPath")) {
+            //mImageUri = Uri.parse(savedInstanceState.getString("cameraImageUri"));
+            mCurrentPhotoPath = savedInstanceState.getString("curPhotoPath");
+            Log.e("GP","Camera mCurrentPhotoPath on restore = "+mCurrentPhotoPath);
+        }
     }
 }
